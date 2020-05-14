@@ -1,0 +1,10 @@
+.env
+.idea
+db.sqlite3
+/notes.md
+/media/
+/screenshots/
+blog/__pycache__/
+blog/migrations/__pycache__/
+sensive_blog/__pycache__/
+venv/
