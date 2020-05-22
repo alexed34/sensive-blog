@@ -52,8 +52,7 @@ def index(request):
     posts_author = Post.objects.all().prefetch_related('author')
 
     all_posts = posts_author.annotate(likes_count=Count('likes')).order_by('-likes_count')
-    most_popular_posts_ids = [post.id for post in all_posts]
-    posts_with_comments = posts_author.filter(id__in=most_popular_posts_ids).annotate(comments_count=Count('comments'))
+    posts_with_comments = posts_author.filter(id__in=all_posts).annotate(comments_count=Count('comments'))
     ids_and_comments = posts_with_comments.values_list('id', 'comments_count')
     count_for_id = dict(ids_and_comments)
 
@@ -67,7 +66,7 @@ def index(request):
 
     most_fresh_posts = list(fresh_posts)
 
-    most_popular_tags = Tag.objects.annotate(Count('title')).order_by('-title__count')[:5]
+    most_popular_tags = Tag.objects.popular()[:5]
 
     context = {
         'most_popular_posts': [serialize_post_optimized(post) for post in most_popular_posts],
@@ -104,9 +103,11 @@ def post_detail(request, slug):
         "tags": [serialize_tag(tag) for tag in related_tags],
     }
 
-    all_tags = Tag.objects.all()
-    popular_tags = sorted(all_tags, key=get_related_posts_count)
-    most_popular_tags = popular_tags[-5:]
+    # all_tags = Tag.objects.all()
+    # popular_tags = sorted(all_tags, key=get_related_posts_count)
+    # most_popular_tags = popular_tags[-5:]
+    most_popular_tags = Tag.objects.popular()[:5]
+
 
     most_popular_posts = []  # TODO. Как это посчитать?
 
@@ -121,9 +122,10 @@ def post_detail(request, slug):
 def tag_filter(request, tag_title):
     tag = Tag.objects.get(title=tag_title)
 
-    all_tags = Tag.objects.all()
-    popular_tags = sorted(all_tags, key=get_related_posts_count)
-    most_popular_tags = popular_tags[-5:]
+    # all_tags = Tag.objects.all()
+    # popular_tags = sorted(all_tags, key=get_related_posts_count)
+    # most_popular_tags = popular_tags[-5:]
+    most_popular_tags = Tag.objects.popular()[:5]
 
     most_popular_posts = []  # TODO. Как это посчитать?
 
